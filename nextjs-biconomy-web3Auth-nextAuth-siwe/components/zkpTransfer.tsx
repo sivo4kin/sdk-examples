@@ -4,32 +4,34 @@ import { useState } from "react";
 import useBiconomyStore from "../store/useBiconomyStore";
 
 
-const GasslessTx = () => {
+const GasslessStakingTokenTx = () => {
   const [successMsg, setSuccessMsg] = useState<string | undefined>(undefined);
   const [errorMsg, setErrorMsg] = useState<string | undefined>(undefined);
   const smartAccountAddress = useBiconomyStore.use.smartAccountAddress();
+  const recipientAddress = "0x134A492012E0BFBae90D81A4214fa48DaD69bE33";
+  const zkpTokenAddress = "0x3f73371cfa58f338c479928ac7b4327478cb859f";
+  const amount = 1000000000000;
 
-  const sendNFT = async () => {
+  const transferZKPToken = async () => {
     const smartAccount = window.biconomySmartAccount;
     if (!smartAccount) return;
-    // dummy poly address
-    const recipientAddress = "0x061c2c8bEC88da2ae039207E220adBa8362eEAE4";
-    // test poly contract address
-    const nftAddress = "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619";
-    const tokenId = 1;
-    const erc721Interface = new ethers.utils.Interface([
-      "function safeTransferFrom(address _from, address _to, uint256 _tokenId)",
+
+    const transferInterface = new ethers.utils.Interface([
+      "function transfer(address recipient, uint256 amount)",
     ]);
+
     // Encode an ERC-721 token transfer to recipient of the specified amount
-    const data = erc721Interface.encodeFunctionData("safeTransferFrom", [
-      smartAccountAddress,
+    const data = transferInterface.encodeFunctionData("transfer", [
       recipientAddress,
-      tokenId,
+      amount,
     ]);
-    const tx1 = {
-      to: nftAddress,
+
+
+    const txTransfer = {
+      to: zkpTokenAddress,
       data,
     };
+
     // Transaction subscription
     smartAccount.on("txHashGenerated", (response: any) => {
       console.log("txHashGenerated event received via emitter", response);
@@ -41,16 +43,20 @@ const GasslessTx = () => {
     });
     smartAccount.on("error", (response: any) => {
       setErrorMsg(
-        `error event received via emitter: ${JSON.stringify(response)}`
+          `error event received via emitter: ${JSON.stringify(response)}`
       );
     });
     // Sending transaction
     // Gasless
+
+    console.log(txTransfer)
     const txResponse = await smartAccount.sendGaslessTransaction({
-      transaction: tx1,
+      transaction: txTransfer,
     });
     console.log("txResponse", txResponse);
   };
+
+
   return smartAccountAddress && (
     <div
       style={{
@@ -60,7 +66,7 @@ const GasslessTx = () => {
       }}
     >
       <div style={{ margin: "auto" }}>
-        <button onClick={sendNFT}>Send NFT</button>
+        <button onClick={transferZKPToken}>Transfer ZKP</button>
       </div>
       <div style={{ margin: "auto" }}>
         {successMsg && <p>{successMsg}</p>}
@@ -70,4 +76,4 @@ const GasslessTx = () => {
   ) || null;
 };
 
-export default GasslessTx;
+export default GasslessStakingTokenTx;
