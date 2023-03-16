@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 
 const SignMessage = dynamic(() => import("./signMessage"), { ssr: false });
 const GasslessTx = dynamic(() => import("./gasslessTx"), { ssr: false });
+const GaslessStakingTokentx = dynamic(() => import("./gasslessStakingTx"), { ssr: false });
 
 const BiconomyFeatures = () => {
   const { data: session } = useSession();
@@ -13,7 +14,8 @@ const BiconomyFeatures = () => {
       <h1>Biconomy Features</h1>
       <Suspense fallback={<div>Loading...</div>}>
         <SignMessage />
-        <GasslessTx />
+          <GasslessTx />
+        <GaslessStakingTokentx />
       </Suspense>
     </div>
   ) : null;
